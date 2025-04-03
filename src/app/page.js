@@ -397,7 +397,7 @@ export default function Home() {
               </p>
               <p className="text-gray-700 mb-6">
                 Our team of experts provides personalized service tailored to your specific needs and preferences.
-                Whether you're looking for a primary residence, vacation home, or investment property, we're here
+                Whether you&apos;re looking for a primary residence, vacation home, or investment property, we&apos;re here
                 to help you find the perfect match.
               </p>
               <button
@@ -456,7 +456,7 @@ export default function Home() {
                   >
                     <div className="text-green-500 text-5xl mb-4">✓</div>
                     <h4 className="text-2xl font-semibold mb-3">Thank You!</h4>
-                    <p className="text-gray-600 text-lg">We've received your message and will be in touch shortly.</p>
+                    <p className="text-gray-600 text-lg">We&apos;ve received your message and will be in touch shortly.</p>
                   </div>
                 ) : (
                   <form onSubmit={handleContactSubmit}>
@@ -591,7 +591,7 @@ export default function Home() {
               >
                 <div className="text-green-500 text-5xl mb-4">✓</div>
                 <h4 className="text-2xl font-semibold mb-3">Thank You!</h4>
-                <p className="text-gray-600 text-lg">We've received your information and will be in touch shortly.</p>
+                <p className="text-gray-600 text-lg">We&apos;ve received your information and will be in touch shortly.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
