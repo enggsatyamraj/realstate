@@ -445,7 +445,7 @@ export default function Home() {
               </p>
               <p className="text-gray-300 mb-6">
                 Our team of experts provides personalized service tailored to your specific needs and preferences.
-                Whether you're looking for a primary residence, vacation home, or investment property, we're here
+                Whether you&apos;re looking for a primary residence, vacation home, or investment property, we&apos;re here
                 to help you find the perfect match.
               </p>
               <button
@@ -504,7 +504,7 @@ export default function Home() {
                   >
                     <div className="text-green-500 text-5xl mb-4">✓</div>
                     <h4 className="text-2xl font-semibold mb-3 text-amber-300">Thank You!</h4>
-                    <p className="text-gray-200 text-lg">We've received your message and will be in touch shortly.</p>
+                    <p className="text-gray-200 text-lg">We&apos;ve received your message and will be in touch shortly.</p>
                   </div>
                 ) : (
                   <form onSubmit={handleContactSubmit}>
@@ -585,7 +585,7 @@ export default function Home() {
             <div>
               <h3 className="text-xl font-semibold mb-4 text-amber-400">Aspire by GAURS</h3>
               <p className="text-gray-400">Your trusted partner in luxury real estate since 1995.</p>
-              <p className="text-gray-400 mt-2">Approved by Hon'ble Supreme Court</p>
+              <p className="text-gray-400 mt-2">Approved by Hon&apos;ble Supreme Court</p>
               <p className="text-gray-400">Monitored Housing Projects</p>
               <p className="text-gray-400">Executed through NBCC India Ltd.</p>
             </div>
@@ -643,7 +643,7 @@ export default function Home() {
               >
                 <div className="text-green-500 text-5xl mb-4">✓</div>
                 <h4 className="text-2xl font-semibold mb-3 text-amber-300">Thank You!</h4>
-                <p className="text-gray-300 text-lg">We've received your information and will be in touch shortly.</p>
+                <p className="text-gray-300 text-lg">We&apos;ve received your information and will be in touch shortly.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
