@@ -35,6 +35,13 @@ export default function Home() {
   const [contactSubmitError, setContactSubmitError] = useState('');
   const [contactCountryCode, setContactCountryCode] = useState('+91');
 
+  // Added mobile menu state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   const handleCountryCodeChange = (e) => {
     setCountryCode(e.target.value);
   };
@@ -56,6 +63,21 @@ export default function Home() {
         0% { transform: translateY(20px); opacity: 0; }
         60% { transform: translateY(-5px); opacity: 1; }
         100% { transform: translateY(0); opacity: 1; }
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
+      @keyframes slideDown {
+        from { transform: translateY(-10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      
+      @keyframes slideInRight {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
       }
       
       ::placeholder {
@@ -88,6 +110,34 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      const mobileMenu = document.getElementById("mobile-menu");
+      const hamburgerButton = document.getElementById("hamburger-button");
+
+      if (mobileMenuOpen && mobileMenu && hamburgerButton) {
+        if (!mobileMenu.contains(event.target) && !hamburgerButton.contains(event.target)) {
+          setMobileMenuOpen(false);
+        }
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [mobileMenuOpen]);
+
+  // Close mobile menu when navigating to a section
+  const handleSectionClick = (sectionId) => {
+    setMobileMenuOpen(false);
+
+    // Smooth scroll to the section
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Popup form handlers
   const handleChange = (e) => {
@@ -274,33 +324,129 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {/* Navigation Bar */}
-      <nav className="bg-gray-800 shadow-md py-4">
+      {/* Navigation Bar - Updated with responsive design */}
+      <nav className="bg-gray-800 shadow-md py-4 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <div className="text-2xl font-bold text-amber-400">
+            <div
+              className="text-2xl font-bold text-amber-400 transition-all duration-300 hover:scale-105"
+              style={{ animation: "fadeIn 0.8s ease-out" }}
+            >
               Aspire by GAURS
               <div className="text-sm text-gray-300">GRAND LUXURY RESIDENCES</div>
             </div>
-            <div className="flex items-center space-x-6">
-              <a href="#properties" className="text-gray-300 hover:text-amber-300">Properties</a>
-              <a href="#about" className="text-gray-300 hover:text-amber-300">About</a>
-              <a href="#contact" className="text-gray-300 hover:text-amber-300">Contact</a>
+
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-6">
+              <a
+                href="#properties"
+                className="text-gray-300 hover:text-amber-300 transition-all duration-300 hover:scale-105 relative group"
+              >
+                Properties
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a
+                href="#about"
+                className="text-gray-300 hover:text-amber-300 transition-all duration-300 hover:scale-105 relative group"
+              >
+                About
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a
+                href="#contact"
+                className="text-gray-300 hover:text-amber-300 transition-all duration-300 hover:scale-105 relative group"
+              >
+                Contact
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 transition-all duration-300 group-hover:w-full"></span>
+              </a>
               <button
                 onClick={navigateToAdmin}
-                className="text-gray-300 hover:text-amber-300"
+                className="text-gray-300 hover:text-amber-300 transition-all duration-300 hover:scale-105 relative group"
               >
                 Admin
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 transition-all duration-300 group-hover:w-full"></span>
               </button>
               <button
                 onClick={downloadBrochure}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition duration-300"
+                className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-600/30"
               >
                 Download Brochure
               </button>
             </div>
+
+            {/* Hamburger Menu Button */}
+            <div className="md:hidden flex items-center">
+              <button
+                id="hamburger-button"
+                onClick={toggleMobileMenu}
+                className="text-gray-300 hover:text-amber-300 focus:outline-none transition-all duration-300"
+                aria-label="Menu"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  {mobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        <div
+          id="mobile-menu"
+          className={`md:hidden fixed top-16 right-0 w-64 h-screen bg-gray-800 shadow-lg transform ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out z-30`}
+          style={{ animation: mobileMenuOpen ? "slideInRight 0.3s ease-out forwards" : "" }}
+        >
+          <div className="flex flex-col p-4 space-y-4">
+            <a
+              onClick={() => handleSectionClick('properties')}
+              className="text-gray-300 hover:text-amber-300 transition-all duration-300 py-2 px-3 hover:bg-gray-700 rounded-md cursor-pointer"
+            >
+              Properties
+            </a>
+            <a
+              onClick={() => handleSectionClick('about')}
+              className="text-gray-300 hover:text-amber-300 transition-all duration-300 py-2 px-3 hover:bg-gray-700 rounded-md cursor-pointer"
+            >
+              About
+            </a>
+            <a
+              onClick={() => handleSectionClick('contact')}
+              className="text-gray-300 hover:text-amber-300 transition-all duration-300 py-2 px-3 hover:bg-gray-700 rounded-md cursor-pointer"
+            >
+              Contact
+            </a>
+            <button
+              onClick={navigateToAdmin}
+              className="text-gray-300 hover:text-amber-300 transition-all duration-300 py-2 px-3 hover:bg-gray-700 rounded-md text-left"
+            >
+              Admin
+            </button>
+            <button
+              onClick={downloadBrochure}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition duration-300 mt-2"
+            >
+              Download Brochure
+            </button>
+          </div>
+        </div>
+
+        {/* Overlay when mobile menu is open */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black opacity-50 z-20 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -308,13 +454,14 @@ export default function Home() {
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
           <div className="text-white bg-transparent">
-            <h1 className="text-5xl font-bold mb-4 text-amber-300">Aspire Centurian Park</h1>
-            <p className="text-xl mb-6 text-white">THE NAME THAT HAS TRULY REDEFINED REAL ESTATE</p>
-            <p className="text-lg mb-6 text-gray-300">THE MOST TRUSTED NAME TODAY IN THE REGION</p>
-            <p className="text-lg mb-8 text-gray-300">THE NAME THAT DELIVERS 1 PROPERTY EVERY 2 HOURS</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-amber-300" style={{ animation: "fadeIn 1s ease-out" }}>Aspire Centurian Park</h1>
+            <p className="text-lg md:text-xl mb-6 text-white" style={{ animation: "fadeIn 1.2s ease-out" }}>THE NAME THAT HAS TRULY REDEFINED REAL ESTATE</p>
+            <p className="text-base md:text-lg mb-6 text-gray-300" style={{ animation: "fadeIn 1.4s ease-out" }}>THE MOST TRUSTED NAME TODAY IN THE REGION</p>
+            <p className="text-base md:text-lg mb-8 text-gray-300" style={{ animation: "fadeIn 1.6s ease-out" }}>THE NAME THAT DELIVERS 1 PROPERTY EVERY 2 HOURS</p>
             <button
               onClick={() => setShowPopup(true)}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md text-lg shadow-lg transition duration-300"
+              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md text-lg shadow-lg transition duration-300 transform hover:scale-105 hover:shadow-amber-600/30"
+              style={{ animation: "fadeIn 1.8s ease-out" }}
             >
               Get More Info
             </button>
@@ -327,27 +474,27 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-amber-400 mb-8 text-center">3 DECADES OF TRUST & TRIUMPHS</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center">
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
               <div className="text-amber-400 text-4xl font-bold mb-2">30 YEARS</div>
               <p className="text-gray-300">OF UNFALTERING COMMITMENT</p>
             </div>
-            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center">
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
               <div className="text-amber-400 text-4xl font-bold mb-2">75+ PROJECTS</div>
               <p className="text-gray-300">DELIVERED</p>
             </div>
-            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center">
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
               <div className="text-amber-400 text-4xl font-bold mb-2">75,000+</div>
               <p className="text-gray-300">PROPERTY UNITS DELIVERED</p>
             </div>
-            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center">
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
               <div className="text-amber-400 text-4xl font-bold mb-2">1 LAKH+</div>
               <p className="text-gray-300">HAPPY SATISFIED CUSTOMERS</p>
             </div>
-            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center">
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
               <div className="text-amber-400 text-4xl font-bold mb-2">70+ MILLION</div>
               <p className="text-gray-300">SQ. FT. AREA DELIVERED</p>
             </div>
-            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center">
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
               <div className="text-amber-400 text-4xl font-bold mb-2">100,000+</div>
               <p className="text-gray-300">SATISFIED CUSTOMERS</p>
             </div>
@@ -361,7 +508,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-amber-400 mb-8 text-center">Featured Properties</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Property Card 1 */}
-            <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/20">
               <div className="h-48 relative overflow-hidden">
                 <img
                   src="https://www.gaursonsindia.com/images/development/16th-Parkview-Gaur-Yamuna-City-Actual-Flat-Images-12.jpg"
@@ -376,7 +523,7 @@ export default function Home() {
                   <span className="text-amber-400 font-bold">₹ 1.25 Cr</span>
                   <button
                     onClick={() => setShowPopup(true)}
-                    className="text-amber-400 hover:text-amber-300"
+                    className="text-amber-400 hover:text-amber-300 transition duration-300"
                   >
                     Details
                   </button>
@@ -385,7 +532,7 @@ export default function Home() {
             </div>
 
             {/* Property Card 2 */}
-            <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/20">
               <div className="h-48 relative overflow-hidden">
                 <img
                   src="https://www.gaursonsindia.com/images/cu/gaur-saundaryam/gaur-saundaryam-sept18-Common-Images-big1.jpg"
@@ -400,7 +547,7 @@ export default function Home() {
                   <span className="text-amber-400 font-bold">₹ 75 Lakhs</span>
                   <button
                     onClick={() => setShowPopup(true)}
-                    className="text-amber-400 hover:text-amber-300"
+                    className="text-amber-400 hover:text-amber-300 transition duration-300"
                   >
                     Details
                   </button>
@@ -409,7 +556,7 @@ export default function Home() {
             </div>
 
             {/* Property Card 3 */}
-            <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/20">
               <div className="h-48 relative overflow-hidden">
                 <img
                   src="https://www.gaursonsindia.com/platinum-towers-landing-page/images/1.jpg"
@@ -424,7 +571,7 @@ export default function Home() {
                   <span className="text-amber-400 font-bold">₹ 1.05 Cr</span>
                   <button
                     onClick={() => setShowPopup(true)}
-                    className="text-amber-400 hover:text-amber-300"
+                    className="text-amber-400 hover:text-amber-300 transition duration-300"
                   >
                     Details
                   </button>
@@ -438,16 +585,16 @@ export default function Home() {
       {/* Quote Section */}
       <div className="py-12 bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-amber-400 mb-6">BECAUSE WHERE YOU LIVE COUNTS!</h2>
-          <p className="text-xl text-gray-300 mb-4">BECAUSE YOUR ADDRESS MATTERS!</p>
-          <p className="text-xl text-gray-300 mb-4">BECAUSE YOUR HOME REFLECTS YOUR STATUS!</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-amber-400 mb-6">BECAUSE WHERE YOU LIVE COUNTS!</h2>
+          <p className="text-lg md:text-xl text-gray-300 mb-4">BECAUSE YOUR ADDRESS MATTERS!</p>
+          <p className="text-lg md:text-xl text-gray-300 mb-4">BECAUSE YOUR HOME REFLECTS YOUR STATUS!</p>
         </div>
       </div>
 
       {/* About Section */}
       <div id="about" className="py-12 bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:flex lg:items-center lg:justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div className="lg:w-1/2">
               <h2 className="text-3xl font-bold text-amber-400 mb-4">About GAURS Luxury Estates</h2>
               <p className="text-gray-300 mb-6">
@@ -462,17 +609,17 @@ export default function Home() {
               </p>
               <button
                 onClick={downloadBrochure}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md transition duration-300"
+                className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md transition duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-amber-600/30"
               >
                 Download Our Brochure
               </button>
             </div>
             <div className="mt-8 lg:mt-0 lg:w-1/2 lg:pl-8">
-              <div className="h-96 rounded-lg overflow-hidden">
+              <div className="h-64 md:h-96 rounded-lg overflow-hidden shadow-xl">
                 <img
                   src="https://images.unsplash.com/photo-1577415124269-fc1140a69e91?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
                   alt="Luxury Real Estate Office"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transform transition duration-500 hover:scale-105"
                 />
               </div>
             </div>
@@ -486,7 +633,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-amber-400 mb-8 text-center">Contact Us</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <div className="bg-gray-700 p-6 rounded-lg">
+              <div className="bg-gray-700 p-6 rounded-lg shadow-lg hover:shadow-amber-600/10 transition duration-500">
                 <p className="text-gray-200 mb-2">Gaur Biz Park, Plot No-1, Abhay Khand II</p>
                 <p className="text-gray-200 mb-2">Indirapuram, Ghaziabad - 201014</p>
                 <p className="text-gray-200 mb-2">Phone: (+91) 9212-333-533</p>
@@ -506,7 +653,7 @@ export default function Home() {
               </div>
             </div>
             <div>
-              <div className="bg-gray-700 p-6 rounded-lg">
+              <div className="bg-gray-700 p-6 rounded-lg shadow-lg hover:shadow-amber-600/10 transition duration-500">
                 {contactSubmitted ? (
                   <div
                     className="text-center py-8"
@@ -591,7 +738,7 @@ export default function Home() {
                     <button
                       type="submit"
                       disabled={isContactSubmitting}
-                      className="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded-md transition duration-300 font-medium text-lg"
+                      className="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded-md transition duration-300 font-medium text-lg transform hover:scale-105 hover:shadow-lg hover:shadow-amber-600/30"
                     >
                       {isContactSubmitting ? 'Sending...' : 'Send Message'}
                     </button>
@@ -647,7 +794,7 @@ export default function Home() {
           {/* Changed from solid black to blurred background */}
           <div className="absolute inset-0 backdrop-blur-sm bg-black/60"></div>
           <div
-            className="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md w-full animate-popup relative z-10"
+            className="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md w-full relative z-10"
             style={{
               animation: "spring-popup 0.5s ease-out forwards"
             }}
@@ -656,7 +803,7 @@ export default function Home() {
               <h3 className="text-2xl font-bold text-amber-400">Get More Information</h3>
               <button
                 onClick={() => setShowPopup(false)}
-                className="text-gray-400 hover:text-gray-300"
+                className="text-gray-400 hover:text-gray-300 transition duration-300 transform hover:rotate-90"
               >
                 <span className="text-3xl">&times;</span>
               </button>
@@ -746,7 +893,7 @@ export default function Home() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded-md text-lg font-medium transition duration-300"
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded-md text-lg font-medium transition duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-amber-600/30"
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit'}
                   </button>
