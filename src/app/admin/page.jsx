@@ -217,6 +217,9 @@ export default function AdminPage() {
                                                 {inquiry.phone}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {inquiry.city || 'N/A'}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {new Date(inquiry.submitted_at).toLocaleString()}
                                             </td>
                                         </tr>

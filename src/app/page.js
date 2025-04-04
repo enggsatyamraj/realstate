@@ -13,7 +13,8 @@ export default function Home() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    city: '' // Added city field
   });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
@@ -25,7 +26,8 @@ export default function Home() {
   const [contactFormData, setContactFormData] = useState({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    city: '' // Added city field
   });
   const [contactSubmitted, setContactSubmitted] = useState(false);
   const [contactErrors, setContactErrors] = useState({});
@@ -109,6 +111,9 @@ export default function Home() {
     } else if (!/^\d+$/.test(formData.phone)) {
       tempErrors.phone = "Phone number should contain only digits";
     }
+    if (!formData.city.trim()) {
+      tempErrors.city = "City is required";
+    }
 
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -130,7 +135,8 @@ export default function Home() {
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
-            countryCode: countryCode
+            countryCode: countryCode,
+            city: formData.city // Add city to the request
           }),
         });
 
@@ -147,7 +153,8 @@ export default function Home() {
         setFormData({
           name: '',
           email: '',
-          phone: ''
+          phone: '',
+          city: '' // Reset city field
         });
 
         // Close popup after successful submission
@@ -186,6 +193,9 @@ export default function Home() {
     } else if (!/^\d+$/.test(contactFormData.phone)) {
       tempErrors.phone = "Phone number should contain only digits";
     }
+    if (!contactFormData.city.trim()) {
+      tempErrors.city = "City is required";
+    }
 
     setContactErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -207,7 +217,8 @@ export default function Home() {
             name: contactFormData.name,
             email: contactFormData.email,
             phone: contactFormData.phone,
-            countryCode: contactCountryCode
+            countryCode: contactCountryCode,
+            city: contactFormData.city // Add city to the request
           }),
         });
 
@@ -224,7 +235,8 @@ export default function Home() {
         setContactFormData({
           name: '',
           email: '',
-          phone: ''
+          phone: '',
+          city: '' // Reset city field
         });
 
         // Reset form after delay
@@ -534,6 +546,20 @@ export default function Home() {
                       />
                       {contactErrors.email && <p className="text-red-500 text-sm mt-1">{contactErrors.email}</p>}
                     </div>
+                    {/* Added City Field for Contact Form */}
+                    <div className="mb-5">
+                      <label className="block text-gray-200 mb-2 font-medium" htmlFor="contact-city">City</label>
+                      <input
+                        type="text"
+                        id="contact-city"
+                        name="city"
+                        value={contactFormData.city}
+                        onChange={handleContactChange}
+                        className={`w-full px-4 py-3 text-lg border rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 bg-gray-800 ${contactErrors.city ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                        placeholder="Enter your city"
+                      />
+                      {contactErrors.city && <p className="text-red-500 text-sm mt-1">{contactErrors.city}</p>}
+                    </div>
                     <div className="mb-5">
                       <label className="block text-gray-200 mb-2 font-medium" htmlFor="contact-phone">Phone Number</label>
                       <div className="flex">
@@ -618,7 +644,8 @@ export default function Home() {
       {/* Popup Form */}
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="absolute inset-0 bg-black"></div>
+          {/* Changed from solid black to blurred background */}
+          <div className="absolute inset-0 backdrop-blur-sm bg-black/60"></div>
           <div
             className="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md w-full animate-popup relative z-10"
             style={{
@@ -672,6 +699,20 @@ export default function Home() {
                     placeholder="Enter your email address"
                   />
                   {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                </div>
+                {/* Added City Field for Popup Form */}
+                <div className="mb-5">
+                  <label className="block text-gray-300 text-lg mb-2" htmlFor="city">City</label>
+                  <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 text-lg border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-700 ${errors.city ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                    placeholder="Enter your city"
+                  />
+                  {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
                 </div>
                 <div className="mb-6">
                   <label className="block text-gray-300 text-lg mb-2" htmlFor="phone">Phone Number</label>

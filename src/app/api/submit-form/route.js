@@ -8,11 +8,11 @@ export async function POST(request) {
         const body = await request.json();
 
         // Validate form data
-        const { name, email, phone, countryCode } = body;
+        const { name, email, phone, countryCode, city } = body;
 
-        if (!name || !email || !phone) {
+        if (!name || !email || !phone || !city) {
             return NextResponse.json(
-                { error: 'Name, email, and phone are required fields' },
+                { error: 'Name, email, phone, and city are required fields' },
                 { status: 400 }
             );
         }
@@ -54,6 +54,7 @@ export async function POST(request) {
             name,
             email,
             phone: `${countryCode || '+91'}${phone}`,
+            city, // City is now required so we don't need a fallback
             submitted_at: new Date(),
         };
 
