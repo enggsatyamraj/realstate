@@ -1,15 +1,20 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Head from 'next/head';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
-export default function DLFPrivanaHome() {
+export default function Home() {
+  const router = useRouter();
+
   // Main popup form state
   const [showPopup, setShowPopup] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    city: ''
+    city: '' // Added city field
   });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
@@ -22,7 +27,7 @@ export default function DLFPrivanaHome() {
     name: '',
     email: '',
     phone: '',
-    city: ''
+    city: '' // Added city field
   });
   const [contactSubmitted, setContactSubmitted] = useState(false);
   const [contactErrors, setContactErrors] = useState({});
@@ -30,21 +35,8 @@ export default function DLFPrivanaHome() {
   const [contactSubmitError, setContactSubmitError] = useState('');
   const [contactCountryCode, setContactCountryCode] = useState('+91');
 
-  // Mobile menu state
+  // Added mobile menu state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Scroll state for navbar
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 20;
-      setScrolled(isScrolled);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -61,46 +53,52 @@ export default function DLFPrivanaHome() {
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
-      @keyframes gentle-fade {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      
-      @keyframes soft-scale {
-        0% { transform: scale(0.95); opacity: 0; }
+      @keyframes spring-popup {
+        0% { transform: scale(0.8); opacity: 0; }
+        60% { transform: scale(1.05); opacity: 1; }
         100% { transform: scale(1); opacity: 1; }
       }
       
-      @keyframes slide-in {
+      @keyframes spring-up {
+        0% { transform: translateY(20px); opacity: 0; }
+        60% { transform: translateY(-5px); opacity: 1; }
+        100% { transform: translateY(0); opacity: 1; }
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
+      @keyframes slideDown {
+        from { transform: translateY(-10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      
+      @keyframes slideInRight {
         from { transform: translateX(100%); }
         to { transform: translateX(0); }
       }
       
-      body {
-        scroll-behavior: smooth;
+      ::placeholder {
+        color: #6b7280;
+        font-size: 1rem;
+        opacity: 1;
       }
       
-      .minimal-shadow {
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+      h1, h2, h3, h4, h5, h6 {
+        color: inherit;
       }
       
-      .royal-gradient {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #1e40af 100%);
-      }
-      
-      .text-gradient {
-        background: linear-gradient(135deg, #60a5fa, #3b82f6, #1d4ed8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+      input, textarea {
+        color: #e2e8f0;
+        background-color: #1e293b;
       }
     `;
     document.head.appendChild(style);
 
     return () => {
-      if (document.head.contains(style)) {
-        document.head.removeChild(style);
-      }
+      document.head.removeChild(style);
     };
   }, []);
 
@@ -108,7 +106,7 @@ export default function DLFPrivanaHome() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowPopup(true);
-    }, 3000);
+    }, 2000); // Show popup after 2 seconds
 
     return () => clearTimeout(timer);
   }, []);
@@ -133,13 +131,15 @@ export default function DLFPrivanaHome() {
   // Close mobile menu when navigating to a section
   const handleSectionClick = (sectionId) => {
     setMobileMenuOpen(false);
+
+    // Smooth scroll to the section
     const section = document.getElementById(sectionId);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  // Form handlers
+  // Popup form handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -186,7 +186,7 @@ export default function DLFPrivanaHome() {
             email: formData.email,
             phone: formData.phone,
             countryCode: countryCode,
-            city: formData.city
+            city: formData.city // Add city to the request
           }),
         });
 
@@ -204,7 +204,7 @@ export default function DLFPrivanaHome() {
           name: '',
           email: '',
           phone: '',
-          city: ''
+          city: '' // Reset city field
         });
 
         // Close popup after successful submission
@@ -268,7 +268,7 @@ export default function DLFPrivanaHome() {
             email: contactFormData.email,
             phone: contactFormData.phone,
             countryCode: contactCountryCode,
-            city: contactFormData.city
+            city: contactFormData.city // Add city to the request
           }),
         });
 
@@ -286,7 +286,7 @@ export default function DLFPrivanaHome() {
           name: '',
           email: '',
           phone: '',
-          city: ''
+          city: '' // Reset city field
         });
 
         // Reset form after delay
@@ -302,59 +302,93 @@ export default function DLFPrivanaHome() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-white text-gray-900">
+  const downloadBrochure = () => {
+    // Create a link to download the brochure file from the correct location
+    const link = document.createElement('a');
+    link.href = '/brochure.pdf'; // When in public folder, start with slash
+    link.download = 'Aspire-Centurian-Park-Brochure.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-      {/* Navigation Bar */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'
-        }`}>
-        <div className="max-w-6xl mx-auto px-6 py-4">
+  const navigateToAdmin = () => {
+    router.push('/admin');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-gray-100">
+      <Head>
+        <title>Aspire Centurian Park | Luxury Residences by GAURS</title>
+        <meta name="description" content="Discover luxury real estate properties in Greater Noida West" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      {/* Navigation Bar - Updated with responsive design */}
+      <nav className="bg-gray-800 shadow-md py-4 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 royal-gradient rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-sm">D</span>
-              </div>
-              <div>
-                <div className="text-xl font-light tracking-wide text-gradient">DLF Privana</div>
-                <div className="text-xs text-gray-500 -mt-1">Gurgaon</div>
-              </div>
+            <div
+              className="text-2xl font-bold text-amber-400 transition-all duration-300 hover:scale-105"
+              style={{ animation: "fadeIn 0.8s ease-out" }}
+            >
+              Aspire by GAURS
+              <div className="text-sm text-gray-300">GRAND LUXURY RESIDENCES</div>
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#phases" className={`text-sm font-medium transition-colors ${scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'
-                }`}>
-                Phases
+            <div className="hidden md:flex items-center space-x-6">
+              <a
+                href="#properties"
+                className="text-gray-300 hover:text-amber-300 transition-all duration-300 hover:scale-105 relative group"
+              >
+                Properties
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 transition-all duration-300 group-hover:w-full"></span>
               </a>
-              <a href="#about" className={`text-sm font-medium transition-colors ${scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'
-                }`}>
+              <a
+                href="#about"
+                className="text-gray-300 hover:text-amber-300 transition-all duration-300 hover:scale-105 relative group"
+              >
                 About
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 transition-all duration-300 group-hover:w-full"></span>
               </a>
-              <a href="#contact" className={`text-sm font-medium transition-colors ${scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'
-                }`}>
+              <a
+                href="#contact"
+                className="text-gray-300 hover:text-amber-300 transition-all duration-300 hover:scale-105 relative group"
+              >
                 Contact
-              </a>
-              <a href="/admin" className={`text-sm font-medium transition-colors ${scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'
-                }`}>
-                Admin
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 transition-all duration-300 group-hover:w-full"></span>
               </a>
               <button
-                onClick={() => setShowPopup(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded-md transition-colors"
+                onClick={navigateToAdmin}
+                className="text-gray-300 hover:text-amber-300 transition-all duration-300 hover:scale-105 relative group"
               >
-                Enquire Now
+                Admin
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 transition-all duration-300 group-hover:w-full"></span>
+              </button>
+              <button
+                onClick={downloadBrochure}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-600/30"
+              >
+                Download Brochure
               </button>
             </div>
 
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
+            {/* Hamburger Menu Button */}
+            <div className="md:hidden flex items-center">
               <button
                 id="hamburger-button"
                 onClick={toggleMobileMenu}
-                className={`transition-colors ${scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'
-                  }`}
+                className="text-gray-300 hover:text-amber-300 focus:outline-none transition-all duration-300"
+                aria-label="Menu"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
                   {mobileMenuOpen ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   ) : (
@@ -367,397 +401,247 @@ export default function DLFPrivanaHome() {
         </div>
 
         {/* Mobile Menu */}
-        <div className={`md:hidden bg-white border-t border-gray-100 ${mobileMenuOpen ? 'block' : 'hidden'}`}>
-          <div className="px-6 py-4 space-y-3">
-            <a onClick={() => handleSectionClick('phases')} className="block text-gray-600 hover:text-blue-600 text-sm cursor-pointer">
-              Phases
+        <div
+          id="mobile-menu"
+          className={`md:hidden fixed top-16 right-0 w-64 h-screen bg-gray-800 shadow-lg transform ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out z-30`}
+          style={{ animation: mobileMenuOpen ? "slideInRight 0.3s ease-out forwards" : "" }}
+        >
+          <div className="flex flex-col p-4 space-y-4">
+            <a
+              onClick={() => handleSectionClick('properties')}
+              className="text-gray-300 hover:text-amber-300 transition-all duration-300 py-2 px-3 hover:bg-gray-700 rounded-md cursor-pointer"
+            >
+              Properties
             </a>
-            <a onClick={() => handleSectionClick('about')} className="block text-gray-600 hover:text-blue-600 text-sm cursor-pointer">
+            <a
+              onClick={() => handleSectionClick('about')}
+              className="text-gray-300 hover:text-amber-300 transition-all duration-300 py-2 px-3 hover:bg-gray-700 rounded-md cursor-pointer"
+            >
               About
             </a>
-            <a onClick={() => handleSectionClick('contact')} className="block text-gray-600 hover:text-blue-600 text-sm cursor-pointer">
+            <a
+              onClick={() => handleSectionClick('contact')}
+              className="text-gray-300 hover:text-amber-300 transition-all duration-300 py-2 px-3 hover:bg-gray-700 rounded-md cursor-pointer"
+            >
               Contact
             </a>
-            <a href="/admin" className="block text-gray-600 hover:text-blue-600 text-sm cursor-pointer">
-              Admin
-            </a>
             <button
-              onClick={() => setShowPopup(true)}
-              className="bg-blue-600 text-white px-4 py-2 text-sm rounded-md w-full"
+              onClick={navigateToAdmin}
+              className="text-gray-300 hover:text-amber-300 transition-all duration-300 py-2 px-3 hover:bg-gray-700 rounded-md text-left"
             >
-              Enquire Now
+              Admin
+            </button>
+            <button
+              onClick={downloadBrochure}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition duration-300 mt-2"
+            >
+              Download Brochure
             </button>
           </div>
         </div>
-      </nav >
+
+        {/* Overlay when mobile menu is open */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black opacity-50 z-20 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+        )}
+      </nav>
 
       {/* Hero Section */}
-      < div className="relative min-h-screen overflow-hidden" >
-        {/* Background Image */}
-        < div className="absolute inset-0" >
-          <img
-            src="https://dlfpriivana.in/wp-content/uploads/2023/09/dlf_a1.jpg"
-            alt="DLF Privana Luxury Interior"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/40"></div>
-          <div className="absolute inset-0 royal-gradient opacity-80"></div>
-        </ div>
-
-        {/* Content */}
-        < div className="relative z-10 min-h-screen flex items-center justify-center" >
-          <div className="max-w-6xl mx-auto px-6 text-center text-white">
-            <div style={{ animation: "gentle-fade 1s ease-out" }}>
-              <h1 className="text-5xl md:text-7xl font-extralight mb-6 tracking-wide">
-                DLF Privana
-              </h1>
-              <div className="w-16 h-px bg-white/40 mx-auto mb-6"></div>
-              <p className="text-lg md:text-xl text-blue-100 mb-2 font-light">
-                Premium Residential Development
-              </p>
-              <p className="text-blue-200 mb-12 text-sm">
-                Sectors 76 & 77, Gurgaon
-              </p>
-              <button
-                onClick={() => setShowPopup(true)}
-                className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-3 text-sm rounded-md hover:bg-white/20 transition-all duration-300"
-              >
-                Discover Luxury
-              </button>
-            </div>
+      <div className="relative bg-gray-800 h-96">
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="text-white bg-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-amber-300" style={{ animation: "fadeIn 1s ease-out" }}>Aspire Centurian Park</h1>
+            <p className="text-lg md:text-xl mb-6 text-white" style={{ animation: "fadeIn 1.2s ease-out" }}>THE NAME THAT HAS TRULY REDEFINED REAL ESTATE</p>
+            <p className="text-base md:text-lg mb-6 text-gray-300" style={{ animation: "fadeIn 1.4s ease-out" }}>THE MOST TRUSTED NAME TODAY IN THE REGION</p>
+            <p className="text-base md:text-lg mb-8 text-gray-300" style={{ animation: "fadeIn 1.6s ease-out" }}>THE NAME THAT DELIVERS 1 PROPERTY EVERY 2 HOURS</p>
+            <button
+              onClick={() => setShowPopup(true)}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md text-lg shadow-lg transition duration-300 transform hover:scale-105 hover:shadow-amber-600/30"
+              style={{ animation: "fadeIn 1.8s ease-out" }}
+            >
+              Get More Info
+            </button>
           </div>
-        </ div>
-      </div >
+        </div>
+      </div>
 
       {/* Key Stats Section */}
-      < div className="py-20 bg-gray-50" >
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-light text-gray-800 mb-4">
-              Project <span className="text-gradient">Excellence</span>
-            </h2>
-            <div className="w-12 h-px bg-blue-600 mx-auto"></div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-3xl font-light text-blue-600 mb-2">126</div>
-              <div className="text-sm text-gray-600 font-medium">Acres</div>
+      <div className="py-16 bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-amber-400 mb-8 text-center">3 DECADES OF TRUST & TRIUMPHS</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
+              <div className="text-amber-400 text-4xl font-bold mb-2">30 YEARS</div>
+              <p className="text-gray-300">OF UNFALTERING COMMITMENT</p>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-light text-blue-600 mb-2">88%</div>
-              <div className="text-sm text-gray-600 font-medium">Green Space</div>
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
+              <div className="text-amber-400 text-4xl font-bold mb-2">75+ PROJECTS</div>
+              <p className="text-gray-300">DELIVERED</p>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-light text-blue-600 mb-2">4</div>
-              <div className="text-sm text-gray-600 font-medium">Phases</div>
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
+              <div className="text-amber-400 text-4xl font-bold mb-2">75,000+</div>
+              <p className="text-gray-300">PROPERTY UNITS DELIVERED</p>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-light text-blue-600 mb-2">30+</div>
-              <div className="text-sm text-gray-600 font-medium">Floors</div>
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
+              <div className="text-amber-400 text-4xl font-bold mb-2">1 LAKH+</div>
+              <p className="text-gray-300">HAPPY SATISFIED CUSTOMERS</p>
+            </div>
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
+              <div className="text-amber-400 text-4xl font-bold mb-2">70+ MILLION</div>
+              <p className="text-gray-300">SQ. FT. AREA DELIVERED</p>
+            </div>
+            <div className="bg-gray-700 p-6 rounded-lg shadow-md text-center transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/10">
+              <div className="text-amber-400 text-4xl font-bold mb-2">100,000+</div>
+              <p className="text-gray-300">SATISFIED CUSTOMERS</p>
             </div>
           </div>
         </div>
-      </ div>
+      </div>
 
-      {/* Phases Section */}
-      < div id="phases" className="py-20 bg-white" >
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-light text-gray-800 mb-4">
-              Four Distinct <span className="text-gradient">Phases</span>
-            </h2>
-            <div className="w-12 h-px bg-blue-600 mx-auto mb-6"></div>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Each phase offers unique advantages and lifestyle experiences, designed for discerning residents.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-            {/* Privana East */}
-            <div className="group">
-              <div className="bg-white minimal-shadow rounded-lg p-8 border border-gray-100 hover:border-blue-200 transition-all duration-300">
-                <div className="flex items-center mb-6">
-                  <div className="w-3 h-3 bg-blue-600 rounded-full mr-3"></div>
-                  <div>
-                    <h3 className="text-xl font-medium text-gray-800">Privana East</h3>
-                    <p className="text-sm text-gray-500">Sector 76</p>
-                  </div>
+      {/* Featured Properties Section */}
+      <div id="properties" className="py-12 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-amber-400 mb-8 text-center">Featured Properties</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Property Card 1 */}
+            <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/20">
+              <div className="h-48 relative overflow-hidden">
+                <img
+                  src="https://www.gaursonsindia.com/images/development/16th-Parkview-Gaur-Yamuna-City-Actual-Flat-Images-12.jpg"
+                  alt="Luxury Villa"
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2 text-amber-300">Luxury Villa</h3>
+                <p className="text-gray-300 mb-4">A stunning 5-bedroom villa with pool and garden</p>
+                <div className="flex justify-between">
+                  <span className="text-amber-400 font-bold">₹ 1.25 Cr</span>
+                  <button
+                    onClick={() => setShowPopup(true)}
+                    className="text-amber-400 hover:text-amber-300 transition duration-300"
+                  >
+                    Details
+                  </button>
                 </div>
-                <div className="space-y-3 mb-6">
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Config:</span>
-                    <span className="text-gray-800">3 & 4 BHK</span>
-                  </div>
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Area:</span>
-                    <span className="text-gray-800">2100 - 3500 sq.ft.</span>
-                  </div>
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Price:</span>
-                    <span className="text-blue-600 font-medium">₹3.40 - 6.40 Cr</span>
-                  </div>
-                </div>
-                <ul className="text-sm text-gray-600 space-y-1 mb-6">
-                  <li>• Resort-style lakelet</li>
-                  <li>• Largest clubhouse</li>
-                  <li>• Aravalli views</li>
-                </ul>
-                <button
-                  onClick={() => setShowPopup(true)}
-                  className="text-blue-600 text-sm hover:text-blue-700 transition-colors"
-                >
-                  Learn More →
-                </button>
               </div>
             </div>
 
-            {/* Privana North */}
-            <div className="group">
-              <div className="bg-white minimal-shadow rounded-lg p-8 border border-gray-100 hover:border-green-200 transition-all duration-300">
-                <div className="flex items-center mb-6">
-                  <div className="w-3 h-3 bg-green-600 rounded-full mr-3"></div>
-                  <div>
-                    <h3 className="text-xl font-medium text-gray-800">Privana North</h3>
-                    <p className="text-sm text-gray-500">Sector 77</p>
-                  </div>
+            {/* Property Card 2 */}
+            <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/20">
+              <div className="h-48 relative overflow-hidden">
+                <img
+                  src="https://www.gaursonsindia.com/images/cu/gaur-saundaryam/gaur-saundaryam-sept18-Common-Images-big1.jpg"
+                  alt="Modern Apartment"
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2 text-amber-300">Modern Apartment</h3>
+                <p className="text-gray-300 mb-4">A centrally located 3-bedroom apartment with views</p>
+                <div className="flex justify-between">
+                  <span className="text-amber-400 font-bold">₹ 75 Lakhs</span>
+                  <button
+                    onClick={() => setShowPopup(true)}
+                    className="text-amber-400 hover:text-amber-300 transition duration-300"
+                  >
+                    Details
+                  </button>
                 </div>
-                <div className="space-y-3 mb-6">
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Config:</span>
-                    <span className="text-gray-800">4 BHK + Utility</span>
-                  </div>
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Area:</span>
-                    <span className="text-gray-800">3956 sq.ft.</span>
-                  </div>
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Price:</span>
-                    <span className="text-green-600 font-medium">On Request</span>
-                  </div>
-                </div>
-                <ul className="text-sm text-gray-600 space-y-1 mb-6">
-                  <li>• 85% green spaces</li>
-                  <li>• Smart home features</li>
-                  <li>• Low density living</li>
-                </ul>
-                <button
-                  onClick={() => setShowPopup(true)}
-                  className="text-green-600 text-sm hover:text-green-700 transition-colors"
-                >
-                  Learn More →
-                </button>
               </div>
             </div>
 
-            {/* Privana South */}
-            <div className="group">
-              <div className="bg-white minimal-shadow rounded-lg p-8 border border-gray-100 hover:border-purple-200 transition-all duration-300">
-                <div className="flex items-center mb-6">
-                  <div className="w-3 h-3 bg-purple-600 rounded-full mr-3"></div>
-                  <div>
-                    <h3 className="text-xl font-medium text-gray-800">Privana South</h3>
-                    <p className="text-sm text-gray-500">Sector 77</p>
-                  </div>
-                </div>
-                <div className="space-y-3 mb-6">
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Config:</span>
-                    <span className="text-gray-800">4 BHK</span>
-                  </div>
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Area:</span>
-                    <span className="text-gray-800">2150 - 3200 sq.ft.</span>
-                  </div>
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Price:</span>
-                    <span className="text-purple-600 font-medium">₹7.39 - 11.16 Cr</span>
-                  </div>
-                </div>
-                <ul className="text-sm text-gray-600 space-y-1 mb-6">
-                  <li>• 7 towers, 25 acres</li>
-                  <li>• Spa & wellness</li>
-                  <li>• 3 parking spaces</li>
-                </ul>
-                <button
-                  onClick={() => setShowPopup(true)}
-                  className="text-purple-600 text-sm hover:text-purple-700 transition-colors"
-                >
-                  Learn More →
-                </button>
+            {/* Property Card 3 */}
+            <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition duration-500 hover:scale-105 hover:shadow-lg hover:shadow-amber-600/20">
+              <div className="h-48 relative overflow-hidden">
+                <img
+                  src="https://www.gaursonsindia.com/platinum-towers-landing-page/images/1.jpg"
+                  alt="Countryside Estate"
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                />
               </div>
-            </div>
-
-            {/* Privana West */}
-            <div className="group">
-              <div className="bg-white minimal-shadow rounded-lg p-8 border border-gray-100 hover:border-orange-200 transition-all duration-300">
-                <div className="flex items-center mb-6">
-                  <div className="w-3 h-3 bg-orange-600 rounded-full mr-3"></div>
-                  <div>
-                    <h3 className="text-xl font-medium text-gray-800">Privana West</h3>
-                    <p className="text-sm text-gray-500">Sector 76</p>
-                  </div>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2 text-amber-300">Iconic Tower</h3>
+                <p className="text-gray-300 mb-4">A magnificent 45-story iconic tower at Gr. Noida (West)</p>
+                <div className="flex justify-between">
+                  <span className="text-amber-400 font-bold">₹ 1.05 Cr</span>
+                  <button
+                    onClick={() => setShowPopup(true)}
+                    className="text-amber-400 hover:text-amber-300 transition duration-300"
+                  >
+                    Details
+                  </button>
                 </div>
-                <div className="space-y-3 mb-6">
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Config:</span>
-                    <span className="text-gray-800">4 BHK</span>
-                  </div>
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Area:</span>
-                    <span className="text-gray-800">3577 - 5472 sq.ft.</span>
-                  </div>
-                  <div className="flex text-sm">
-                    <span className="text-gray-500 w-20">Price:</span>
-                    <span className="text-orange-600 font-medium">₹7.24 - 7.87 Cr</span>
-                  </div>
-                </div>
-                <ul className="text-sm text-gray-600 space-y-1 mb-6">
-                  <li>• 12.6 acre development</li>
-                  <li>• 744 premium units</li>
-                  <li>• Possession 2028</li>
-                </ul>
-                <button
-                  onClick={() => setShowPopup(true)}
-                  className="text-orange-600 text-sm hover:text-orange-700 transition-colors"
-                >
-                  Learn More →
-                </button>
               </div>
             </div>
           </div>
         </div>
-      </ div>
+      </div>
 
-      {/* Location Section */}
-      < div className="py-20 bg-gray-50" >
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-light text-gray-800 mb-4">
-              Strategic <span className="text-gradient">Location</span>
-            </h2>
-            <div className="w-12 h-px bg-blue-600 mx-auto"></div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-blue-600 text-xl">🛣️</span>
-              </div>
-              <h3 className="text-lg font-medium text-gray-800 mb-2">Connectivity</h3>
-              <p className="text-sm text-gray-600">NH-48, Dwarka Expressway, SPR & CPR access</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-blue-600 text-xl">🏢</span>
-              </div>
-              <h3 className="text-lg font-medium text-gray-800 mb-2">Corporate Hubs</h3>
-              <p className="text-sm text-gray-600">DLF Cyber City, Google, American Express nearby</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-blue-600 text-xl">🚇</span>
-              </div>
-              <h3 className="text-lg font-medium text-gray-800 mb-2">Amenities</h3>
-              <p className="text-sm text-gray-600">Metro, malls, schools & healthcare facilities</p>
-            </div>
-          </div>
+      {/* Quote Section */}
+      <div className="py-12 bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-amber-400 mb-6">BECAUSE WHERE YOU LIVE COUNTS!</h2>
+          <p className="text-lg md:text-xl text-gray-300 mb-4">BECAUSE YOUR ADDRESS MATTERS!</p>
+          <p className="text-lg md:text-xl text-gray-300 mb-4">BECAUSE YOUR HOME REFLECTS YOUR STATUS!</p>
         </div>
-      </ div>
+      </div>
 
       {/* About Section */}
-      < div id="about" className="py-20 bg-white" >
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-light text-gray-800 mb-6">
-                About <span className="text-gradient">DLF Privana</span>
-              </h2>
-              <div className="w-12 h-px bg-blue-600 mb-8"></div>
-
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                DLF Privana represents the pinnacle of luxury living in Gurgaon. Spanning 126 acres across Sectors 76 and 77,
-                this premium development offers an unparalleled blend of luxury, comfort, and sustainability.
+      <div id="about" className="py-12 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div className="lg:w-1/2">
+              <h2 className="text-3xl font-bold text-amber-400 mb-4">About GAURS Luxury Estates</h2>
+              <p className="text-gray-300 mb-6">
+                With over 25 years in the luxury real estate market, we specialize in connecting discerning clients
+                with exceptional properties. Our portfolio includes exclusive villas, penthouses, historic estates,
+                and unique investment opportunities.
               </p>
-
-              <p className="text-gray-600 mb-8 leading-relaxed">
-                With 88% open green spaces and international architectural standards, Privana features design inputs from
-                renowned consultants from Paris and London, creating a truly world-class living experience.
+              <p className="text-gray-300 mb-6">
+                Our team of experts provides personalized service tailored to your specific needs and preferences.
+                Whether you&apos;re looking for a primary residence, vacation home, or investment property, we&apos;re here
+                to help you find the perfect match.
               </p>
-
-              <div className="bg-gray-50 p-6 rounded-lg mb-8">
-                <h3 className="text-lg font-medium text-gray-800 mb-4">RERA Compliance</h3>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <div>Privana South: HARERA/GGM/772/504/2023/116</div>
-                  <div>Privana West: RC/REP/HARERA/GGM/819/551/2024/46</div>
-                </div>
-              </div>
+              <button
+                onClick={downloadBrochure}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-md transition duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-amber-600/30"
+              >
+                Download Our Brochure
+              </button>
             </div>
-
-            <div className="relative">
-              <div className="aspect-square rounded-lg overflow-hidden shadow-xl">
+            <div className="mt-8 lg:mt-0 lg:w-1/2 lg:pl-8">
+              <div className="h-64 md:h-96 rounded-lg overflow-hidden shadow-xl">
                 <img
-                  src="https://dlfpriivana.in/wp-content/uploads/2023/09/gallery7-1.jpg"
-                  alt="DLF Privana Premium Interior Design"
+                  src="https://images.unsplash.com/photo-1577415124269-fc1140a69e91?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                  alt="Luxury Real Estate Office"
                   className="w-full h-full object-cover transform transition duration-500 hover:scale-105"
                 />
               </div>
             </div>
           </div>
         </div>
-      </ div>
+      </div>
 
       {/* Contact Section */}
-      {/* Contact Section */}
-      <div id="contact" className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-light text-gray-800 mb-4">
-              Get in <span className="text-gradient">Touch</span>
-            </h2>
-            <div className="w-12 h-px bg-blue-600 mx-auto"></div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+      <div id="contact" className="py-12 bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-amber-400 mb-8 text-center">Contact Us</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <div className="bg-white rounded-lg p-8 minimal-shadow">
-                <h3 className="text-xl font-medium text-gray-800 mb-6">Contact Information</h3>
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-start">
-                    <span className="text-blue-600 mt-1 mr-3">📍</span>
-                    <div>
-                      <div className="font-medium text-gray-800">DLF Privana Sales Office</div>
-                      <div className="text-sm text-gray-600">Sectors 76 & 77, Gurgaon</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-blue-600 mt-1 mr-3">📞</span>
-                    <div>
-                      <div className="font-medium text-gray-800">Phone</div>
-                      <div className="text-sm text-gray-600">(+91) 124-456-7890</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-blue-600 mt-1 mr-3">✉️</span>
-                    <div>
-                      <div className="font-medium text-gray-800">Email</div>
-                      <div className="text-sm text-gray-600">info@dlfprivana.com</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-blue-600 mt-1 mr-3">🌐</span>
-                    <div>
-                      <div className="font-medium text-gray-800">Website</div>
-                      <div className="text-sm text-gray-600">https://dlfpriivana.in/</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-48 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="bg-gray-700 p-6 rounded-lg shadow-lg hover:shadow-amber-600/10 transition duration-500">
+                <p className="text-gray-200 mb-2">Gaur Biz Park, Plot No-1, Abhay Khand II</p>
+                <p className="text-gray-200 mb-2">Indirapuram, Ghaziabad - 201014</p>
+                <p className="text-gray-200 mb-2">Phone: (+91) 9212-333-533</p>
+                <p className="text-gray-200 mb-4">Email: info@gaurs.com</p>
+                <div className="h-64 bg-gray-600 rounded-lg overflow-hidden">
+                  {/* Google Maps iframe */}
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3507.2033848991827!2d77.06149597539654!3d28.489353975700193!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d195d8b1234e5%3A0x12345678!2sSector%2076%2C%20Gurugram%2C%20Haryana!5e0!3m2!1sen!2sin!4v1712166133861!5m2!1sen!2sin"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3504.022551644106!2d77.49705347539894!3d28.564700875689344!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cefd3dd39f561%3A0xf935d542fe7de485!2sTechZone%202%2C%20Greater%20Noida%2C%20Uttar%20Pradesh%20201310!5e0!3m2!1sen!2sin!4v1712166133861!5m2!1sen!2sin"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
@@ -768,115 +652,97 @@ export default function DLFPrivanaHome() {
                 </div>
               </div>
             </div>
-
             <div>
-              <div className="bg-white rounded-lg p-8 minimal-shadow">
+              <div className="bg-gray-700 p-6 rounded-lg shadow-lg hover:shadow-amber-600/10 transition duration-500">
                 {contactSubmitted ? (
-                  <div className="text-center py-12" style={{ animation: "gentle-fade 0.5s ease-out" }}>
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-green-600 text-2xl">✓</span>
-                    </div>
-                    <h4 className="text-xl font-medium text-gray-800 mb-2">Thank You!</h4>
-                    <p className="text-gray-600">We've received your message and will be in touch shortly.</p>
+                  <div
+                    className="text-center py-8"
+                    style={{
+                      animation: "spring-up 0.5s ease-out forwards"
+                    }}
+                  >
+                    <div className="text-green-500 text-5xl mb-4">✓</div>
+                    <h4 className="text-2xl font-semibold mb-3 text-amber-300">Thank You!</h4>
+                    <p className="text-gray-200 text-lg">We&apos;ve received your message and will be in touch shortly.</p>
                   </div>
                 ) : (
                   <form onSubmit={handleContactSubmit}>
-                    <h3 className="text-xl font-medium text-gray-800 mb-6">Send us a Message</h3>
-
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="contact-name">
-                          Full Name
-                        </label>
-                        <input
-                          type="text"
-                          id="contact-name"
-                          name="name"
-                          value={contactFormData.name}
-                          onChange={handleContactChange}
-                          className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${contactErrors.name ? 'border-red-300' : 'border-gray-300'
-                            }`}
-                          placeholder="Enter your full name"
-                        />
-                        {contactErrors.name && <p className="text-red-500 text-xs mt-1">{contactErrors.name}</p>}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="contact-email">
-                          Email Address
-                        </label>
-                        <input
-                          type="email"
-                          id="contact-email"
-                          name="email"
-                          value={contactFormData.email}
-                          onChange={handleContactChange}
-                          className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${contactErrors.email ? 'border-red-300' : 'border-gray-300'
-                            }`}
-                          placeholder="Enter your email address"
-                        />
-                        {contactErrors.email && <p className="text-red-500 text-xs mt-1">{contactErrors.email}</p>}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="contact-city">
-                          City
-                        </label>
-                        <input
-                          type="text"
-                          id="contact-city"
-                          name="city"
-                          value={contactFormData.city}
-                          onChange={handleContactChange}
-                          className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${contactErrors.city ? 'border-red-300' : 'border-gray-300'
-                            }`}
-                          placeholder="Enter your city"
-                        />
-                        {contactErrors.city && <p className="text-red-500 text-xs mt-1">{contactErrors.city}</p>}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="contact-phone">
-                          Phone Number
-                        </label>
-                        <div className="flex">
-                          <select
-                            className="px-3 py-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                            value={contactCountryCode}
-                            onChange={handleContactCountryCodeChange}
-                          >
-                            <option value="+91">+91</option>
-                            <option value="+1">+1</option>
-                            <option value="+44">+44</option>
-                            <option value="+61">+61</option>
-                            <option value="+86">+86</option>
-                            <option value="+49">+49</option>
-                          </select>
-                          <input
-                            type="number"
-                            id="contact-phone"
-                            name="phone"
-                            value={contactFormData.phone}
-                            onChange={handleContactChange}
-                            className={`w-full px-4 py-3 border rounded-r-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${contactErrors.phone ? 'border-red-300' : 'border-gray-300'
-                              }`}
-                            placeholder="Enter your phone number"
-                            min="0"
-                          />
-                        </div>
-                        {contactErrors.phone && <p className="text-red-500 text-xs mt-1">{contactErrors.phone}</p>}
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isContactSubmitting}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md transition-colors disabled:opacity-50"
-                      >
-                        {isContactSubmitting ? 'Sending...' : 'Send Message'}
-                      </button>
-
-                      {contactSubmitError && <p className="text-red-500 text-xs">{contactSubmitError}</p>}
+                    <div className="mb-5">
+                      <label className="block text-gray-200 mb-2 font-medium" htmlFor="contact-name">Name</label>
+                      <input
+                        type="text"
+                        id="contact-name"
+                        name="name"
+                        value={contactFormData.name}
+                        onChange={handleContactChange}
+                        className={`w-full px-4 py-3 text-lg border rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 bg-gray-800 ${contactErrors.name ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                        placeholder="Enter your full name"
+                      />
+                      {contactErrors.name && <p className="text-red-500 text-sm mt-1">{contactErrors.name}</p>}
                     </div>
+                    <div className="mb-5">
+                      <label className="block text-gray-200 mb-2 font-medium" htmlFor="contact-email">Email</label>
+                      <input
+                        type="email"
+                        id="contact-email"
+                        name="email"
+                        value={contactFormData.email}
+                        onChange={handleContactChange}
+                        className={`w-full px-4 py-3 text-lg border rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 bg-gray-800 ${contactErrors.email ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                        placeholder="Enter your email address"
+                      />
+                      {contactErrors.email && <p className="text-red-500 text-sm mt-1">{contactErrors.email}</p>}
+                    </div>
+                    {/* Added City Field for Contact Form */}
+                    <div className="mb-5">
+                      <label className="block text-gray-200 mb-2 font-medium" htmlFor="contact-city">City</label>
+                      <input
+                        type="text"
+                        id="contact-city"
+                        name="city"
+                        value={contactFormData.city}
+                        onChange={handleContactChange}
+                        className={`w-full px-4 py-3 text-lg border rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 bg-gray-800 ${contactErrors.city ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                        placeholder="Enter your city"
+                      />
+                      {contactErrors.city && <p className="text-red-500 text-sm mt-1">{contactErrors.city}</p>}
+                    </div>
+                    <div className="mb-5">
+                      <label className="block text-gray-200 mb-2 font-medium" htmlFor="contact-phone">Phone Number</label>
+                      <div className="flex">
+                        <select
+                          className="px-2 py-3 text-lg border border-gray-600 rounded-l-md focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 bg-gray-800 text-gray-200"
+                          value={contactCountryCode}
+                          onChange={handleContactCountryCodeChange}
+                        >
+                          <option value="+91">+91</option>
+                          <option value="+1">+1</option>
+                          <option value="+44">+44</option>
+                          <option value="+61">+61</option>
+                          <option value="+86">+86</option>
+                          <option value="+49">+49</option>
+                        </select>
+                        <input
+                          type="number"
+                          id="contact-phone"
+                          name="phone"
+                          value={contactFormData.phone}
+                          onChange={handleContactChange}
+                          className={`w-full px-4 py-3 text-lg border rounded-r-md focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 bg-gray-800 ${contactErrors.phone ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                          placeholder="Enter your phone number"
+                          min="0"
+                        />
+                      </div>
+                      {contactErrors.phone && <p className="text-red-500 text-sm mt-1">{contactErrors.phone}</p>}
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={isContactSubmitting}
+                      className="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded-md transition duration-300 font-medium text-lg transform hover:scale-105 hover:shadow-lg hover:shadow-amber-600/30"
+                    >
+                      {isContactSubmitting ? 'Sending...' : 'Send Message'}
+                    </button>
+                    {contactSubmitError && <p className="text-red-500 mt-3 text-sm">{contactSubmitError}</p>}
                   </form>
                 )}
               </div>
@@ -886,186 +752,158 @@ export default function DLFPrivanaHome() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="md:col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 royal-gradient rounded-md flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">D</span>
-                </div>
-                <div className="text-xl font-light">DLF Privana</div>
-              </div>
-              <p className="text-gray-400 text-sm mb-4 max-w-md">
-                Premium residential development in Gurgaon, offering luxury living with international design standards and world-class amenities.
-              </p>
-              <div className="text-xs text-gray-500">
-                <p>RERA Approved Project</p>
-                <p>Launched: December 2023</p>
-              </div>
-            </div>
-
+      <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-sm font-medium mb-4">Quick Links</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#phases" className="hover:text-white transition-colors">Phases</a></li>
-                <li><a href="#about" className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="/admin" className="hover:text-white transition-colors">Admin</a></li>
-                <li><a href="https://dlfpriivana.in/" className="hover:text-white transition-colors">Official Website</a></li>
+              <h3 className="text-xl font-semibold mb-4 text-amber-400">Aspire by GAURS</h3>
+              <p className="text-gray-400">Your trusted partner in luxury real estate since 1995.</p>
+              <p className="text-gray-400 mt-2">Approved by Hon&apos;ble Supreme Court</p>
+              <p className="text-gray-400">Monitored Housing Projects</p>
+              <p className="text-gray-400">Executed through NBCC India Ltd.</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4 text-amber-400">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><a href="#properties" className="text-gray-400 hover:text-amber-300 transition duration-200">Properties</a></li>
+                <li><a href="#about" className="text-gray-400 hover:text-amber-300 transition duration-200">About Us</a></li>
+                <li><a href="#contact" className="text-gray-400 hover:text-amber-300 transition duration-200">Contact</a></li>
+                <li><a href="#" onClick={downloadBrochure} className="text-gray-400 hover:text-amber-300 transition duration-200">Download Brochure</a></li>
+                <li><a href="/admin" className="text-gray-400 hover:text-amber-300 transition duration-200">Admin</a></li>
               </ul>
             </div>
-
             <div>
-              <h3 className="text-sm font-medium mb-4">Project Phases</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>Privana East - Sector 76</li>
-                <li>Privana North - Sector 77</li>
-                <li>Privana South - Sector 77</li>
-                <li>Privana West - Sector 76</li>
-              </ul>
+              <h3 className="text-xl font-semibold mb-4 text-amber-400">Connect With Us</h3>
+              <div className="flex space-x-6">
+                <a href="#" className="text-gray-400 hover:text-amber-300 transition duration-200">Facebook</a>
+                <a href="#" className="text-gray-400 hover:text-amber-300 transition duration-200">Twitter</a>
+                <a href="#" className="text-gray-400 hover:text-amber-300 transition duration-200">Instagram</a>
+                <a href="#" className="text-gray-400 hover:text-amber-300 transition duration-200">LinkedIn</a>
+              </div>
             </div>
           </div>
-
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-            <p className="text-gray-400 text-xs">
-              &copy; {new Date().getFullYear()} DLF Privana. All rights reserved. | RERA Approved
-            </p>
+          <div className="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400">
+            <p>&copy; {new Date().getFullYear()} GAURS Group. All rights reserved.</p>
           </div>
         </div>
       </footer>
 
       {/* Popup Form */}
-      {
-        showPopup && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-            <div
-              className="bg-white rounded-lg shadow-xl max-w-md w-full relative z-10"
-              style={{ animation: "soft-scale 0.3s ease-out" }}
-            >
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-medium text-gray-800">Request Information</h3>
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          {/* Changed from solid black to blurred background */}
+          <div className="absolute inset-0 backdrop-blur-sm bg-black/60"></div>
+          <div
+            className="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md w-full relative z-10"
+            style={{
+              animation: "spring-popup 0.5s ease-out forwards"
+            }}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-amber-400">Get More Information</h3>
+              <button
+                onClick={() => setShowPopup(false)}
+                className="text-gray-400 hover:text-gray-300 transition duration-300 transform hover:rotate-90"
+              >
+                <span className="text-3xl">&times;</span>
+              </button>
+            </div>
+            {submitted ? (
+              <div
+                className="text-center py-8"
+                style={{
+                  animation: "spring-up 0.5s ease-out forwards"
+                }}
+              >
+                <div className="text-green-500 text-5xl mb-4">✓</div>
+                <h4 className="text-2xl font-semibold mb-3 text-amber-300">Thank You!</h4>
+                <p className="text-gray-300 text-lg">We&apos;ve received your information and will be in touch shortly.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <div className="mb-5">
+                  <label className="block text-gray-300 text-lg mb-2" htmlFor="name">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 text-lg border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-700 ${errors.name ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                    placeholder="Enter your full name"
+                  />
+                  {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                </div>
+                <div className="mb-5">
+                  <label className="block text-gray-300 text-lg mb-2" htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 text-lg border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-700 ${errors.email ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                    placeholder="Enter your email address"
+                  />
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                </div>
+                {/* Added City Field for Popup Form */}
+                <div className="mb-5">
+                  <label className="block text-gray-300 text-lg mb-2" htmlFor="city">City</label>
+                  <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 text-lg border rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-700 ${errors.city ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                    placeholder="Enter your city"
+                  />
+                  {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                </div>
+                <div className="mb-6">
+                  <label className="block text-gray-300 text-lg mb-2" htmlFor="phone">Phone Number</label>
+                  <div className="flex">
+                    <select
+                      className="px-2 py-3 text-lg border border-gray-600 rounded-l-md focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 bg-gray-700 text-gray-200"
+                      value={countryCode}
+                      onChange={handleCountryCodeChange}
+                    >
+                      <option value="+91">+91</option>
+                      <option value="+1">+1</option>
+                      <option value="+44">+44</option>
+                      <option value="+61">+61</option>
+                      <option value="+86">+86</option>
+                      <option value="+49">+49</option>
+                    </select>
+                    <input
+                      type="number"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 text-lg border rounded-r-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-gray-700 ${errors.phone ? 'border-red-500' : 'border-gray-600'} text-gray-200`}
+                      placeholder="Enter your phone number"
+                      min="0"
+                    />
+                  </div>
+                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                </div>
+                <div className="flex items-center justify-between">
                   <button
-                    onClick={() => setShowPopup(false)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded-md text-lg font-medium transition duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-amber-600/30"
                   >
-                    <span className="text-2xl">&times;</span>
+                    {isSubmitting ? 'Submitting...' : 'Submit'}
                   </button>
                 </div>
-
-                {submitted ? (
-                  <div className="text-center py-8" style={{ animation: "gentle-fade 0.5s ease-out" }}>
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-green-600 text-2xl">✓</span>
-                    </div>
-                    <h4 className="text-lg font-medium text-gray-800 mb-2">Thank You!</h4>
-                    <p className="text-gray-600 text-sm">We've received your information and will be in touch shortly.</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit}>
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="name">
-                          Full Name
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.name ? 'border-red-300' : 'border-gray-300'
-                            }`}
-                          placeholder="Enter your full name"
-                        />
-                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="email">
-                          Email Address
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.email ? 'border-red-300' : 'border-gray-300'
-                            }`}
-                          placeholder="Enter your email address"
-                        />
-                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="city">
-                          City
-                        </label>
-                        <input
-                          type="text"
-                          id="city"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleChange}
-                          className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.city ? 'border-red-300' : 'border-gray-300'
-                            }`}
-                          placeholder="Enter your city"
-                        />
-                        {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="phone">
-                          Phone Number
-                        </label>
-                        <div className="flex">
-                          <select
-                            className="px-3 py-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                            value={countryCode}
-                            onChange={handleCountryCodeChange}
-                          >
-                            <option value="+91">+91</option>
-                            <option value="+1">+1</option>
-                            <option value="+44">+44</option>
-                            <option value="+61">+61</option>
-                            <option value="+86">+86</option>
-                            <option value="+49">+49</option>
-                          </select>
-                          <input
-                            type="number"
-                            id="phone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            className={`w-full px-4 py-3 border rounded-r-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors ${errors.phone ? 'border-red-300' : 'border-gray-300'
-                              }`}
-                            placeholder="Enter your phone number"
-                            min="0"
-                          />
-                        </div>
-                        {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md transition-colors disabled:opacity-50"
-                      >
-                        {isSubmitting ? 'Submitting...' : 'Get Information'}
-                      </button>
-
-                      {submitError && <p className="text-red-500 text-xs">{submitError}</p>}
-                    </div>
-                  </form>
-                )}
-              </div>
-            </div>
+                {submitError && <p className="text-red-500 mt-3 text-sm">{submitError}</p>}
+              </form>
+            )}
           </div>
-        )
-      }
-    </div >
+        </div>
+      )}
+    </div>
   );
 }
